@@ -14,6 +14,16 @@ Use Stellarium to create an image of the sky at a given
 ## Setup #####################################################################
 ## ---------------------------------------------------------------------------
 
+frame_folder = 'some_dir'
+lat = 35.2226
+long = -97.4395
+title = 'my_screenshot'
+year = 2019
+month = 5
+day = 17
+fov = 14 # degrees
+az = 45 # Azimuth in degrees (View direction)
+alt = 90 # Altitude of the center of the field of view
 
 
 ## ---------------------------------------------------------------------------
@@ -167,11 +177,9 @@ class StellariumToPng:
     param_long = $LONG$
     param_title = "$TITLE$"
     param_date = "$DATE$"
-    param_timespan = $TIMESPAN$
     param_fov = $FOV$
-    param_dt=$DELTAT$
     
-    function makeVideo(date, file_prefix, caption, hours, long, lat, alt, azi)
+    function get_frame(date, file_prefix, caption, hours, long, lat, alt, azi)
     {
         core.setDate(date, "utc");
         core.setObserverLocation(long, lat, 425, 1, "Freiberg", "Earth");
@@ -187,14 +195,10 @@ class StellariumToPng:
         LabelMgr.setLabelShow(labelTime, true);
 
         core.wait(0.5);
-
-        max_sec = hours * 60 * 60
-        for (var sec = 0; sec < max_sec; sec += param_dt) {
-            core.setDate('+' + param_dt + ' seconds');
-            LabelMgr.setLabelText(labelTime, core.getDate(""));
-            core.wait(0.1);
-            core.screenshot(file_prefix);
-        }
+        
+        LabelMgr.setLabelText(labelTime, core.getDate(""));
+        core.wait(0.1);
+        core.screenshot(file_prefix);
 
         LabelMgr.deleteAllLabels();
     }
@@ -229,14 +233,14 @@ class StellariumToPng:
     StelMovementMgr.zoomTo(param_fov, 0);
     core.wait(0.5);
 
-    makeVideo(param_date, "frame_", param_title, param_timespan, param_long, param_lat, param_alt, param_az)
+    get_frame(param_date, "frame_", param_title, param_long, param_lat, param_alt, param_az)
     core.screenshot("final", invert=false, dir=param_frame_folder, overwrite=true);
     core.setGuiVisible(true);
     core.quitStellarium();"""
 
-    def __init__(self, args):
-        self.__args = args
-        self.__frame_folder ="{0}/kalstar_frames".format(tempfile.gettempdir())
+    def __init__(self, args_dict):
+        self.__args = args_dict
+        self.__frame_folder ='/Applications/Stellarium.app/Contents/Resources/save_frames'.format(tempfile.gettempdir())
         self.__final_file = self.__frame_folder + "/final.png";
 
         # Create frame folder if it not already exists
@@ -253,24 +257,24 @@ class StellariumToPng:
     def create_script(self):
 
         # Sonnenuntergangszeit berechnen:
-        s = sun(lat=self.__args.lat, long=self.__args.long)
-        sunset_time = s.sunset(self.__args.date)
+        s = sun(lat=self.__args["lat"], long=self.__args["long"])
+        sunset_time = s.sunset(self.__args["date"])
         sunset_time = self.__addSecs(sunset_time, 3600)
-        sunset_date = "{0}T{1}".format(self.__args.date.strftime("%Y-%m-%d"), sunset_time.strftime("%H:%M:%S"))
+        sunset_date = "{0}T{1}".format(self.__args['date'].strftime("%Y-%m-%d"), sunset_time.strftime("%H:%M:%S"))
         print("Sonnenuntergang: {0}".format(sunset_date))
 
         # Ersetzen der Skriptvariablen
         script = self.__script;
         script = script.replace("$FRAME_FOLDER$", self.__frame_folder);
-        script = script.replace("$LAT$", str(self.__args.lat));
-        script = script.replace("$LONG$", str(self.__args.long));
-        script = script.replace("$TITLE$", str(self.__args.title));
+        script = script.replace("$LAT$", str(self.__args['lat']));
+        script = script.replace("$LONG$", str(self.__args['long']));
+        script = script.replace("$TITLE$", str(self.__args['title']));
         script = script.replace("$DATE$", sunset_date)
-        script = script.replace("$TIMESPAN$", str(self.__args.timespan))
-        script = script.replace("$FOV$", str(self.__args.fov))
-        script = script.replace("$DELTAT$", str(self.__args.dt))
-        script = script.replace("$AZ$", str(self.__args.az))
-        script = script.replace("$ALT$", str(self.__args.alt))
+        #script = script.replace("$TIMESPAN$", str(self.__args.timespan))
+        script = script.replace("$FOV$", str(self.__args['fov']))
+        #script = script.replace("$DELTAT$", str(self.__args.dt))
+        script = script.replace("$AZ$", str(self.__args['az']))
+        script = script.replace("$ALT$", str(self.__args['alt']))
 
         # erzeugen des Sciptes im Stellarium scriptverzeichnis
         # Cora's Edit
@@ -311,7 +315,16 @@ if not os.path.isdir('/Applications/Stellarium.app/Contents/Resources/'.format(P
 # if not os.path.isdir("{0}/.stellarium/scripts".format(Path.home())):
 #     os.mkdir("{0}/.stellarium/scripts".format(Path.home()));
 
-sa = StellariumToMpeg(args)
+args_dict = dict(frame_folder = 'some_dir', \
+    lat = 20.3, \
+    long = 19.7, \
+    title = 'my_screenshot', \
+    date = datetime(year, month, day),  \
+    fov = 14, \
+    az = 45, \
+    alt = 84)
+
+sa = StellariumToPng(args_dict)
 sa.create_script();
 sa.create_frames();
 
