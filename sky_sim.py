@@ -21,8 +21,8 @@ title = 'my_screenshot'
 year = 2019
 month = 5
 day = 17
-fov = 14 # degrees
-az = 45 # Azimuth in degrees (View direction)
+fov = 33.6 # degrees
+az = 30 # Azimuth in degrees (View direction)
 alt = 90 # Altitude of the center of the field of view
 
 
@@ -179,7 +179,7 @@ class StellariumToPng:
     param_date = "$DATE$"
     param_fov = $FOV$
     
-    function get_frame(date, file_prefix, caption, hours, long, lat, alt, azi)
+    function get_frame(date, file_prefix, caption, long, lat, alt, azi)
     {
         core.setDate(date, "utc");
         core.setObserverLocation(long, lat, 425, 1, "Freiberg", "Earth");
@@ -263,11 +263,11 @@ class StellariumToPng:
     def create_script(self):
 
         # Sonnenuntergangszeit berechnen:
-        s = sun(lat=self.__args["lat"], long=self.__args["long"])
-        sunset_time = s.sunset(self.__args["date"])
-        sunset_time = self.__addSecs(sunset_time, 3600)
-        sunset_date = "{0}T{1}".format(self.__args['date'].strftime("%Y-%m-%d"), sunset_time.strftime("%H:%M:%S"))
-        print("Sonnenuntergang: {0}".format(sunset_date))
+        # s = sun(lat=self.__args["lat"], long=self.__args["long"])
+        # sunset_time = s.sunset(self.__args["date"])
+        # sunset_time = self.__addSecs(sunset_time, 3600)
+        # sunset_date = "{0}T{1}".format(self.__args['date'].strftime("%Y-%m-%d"), sunset_time.strftime("%H:%M:%S"))
+        # print("Sonnenuntergang: {0}".format(sunset_date))
 
         # Ersetzen der Skriptvariablen
         script = self.__script;
@@ -275,7 +275,7 @@ class StellariumToPng:
         script = script.replace("$LAT$", str(self.__args['lat']));
         script = script.replace("$LONG$", str(self.__args['long']));
         script = script.replace("$TITLE$", str(self.__args['title']));
-        script = script.replace("$DATE$", sunset_date)
+        script = script.replace("$DATE$", str(self.__args['date']))
         #script = script.replace("$TIMESPAN$", str(self.__args.timespan))
         script = script.replace("$FOV$", str(self.__args['fov']))
         #script = script.replace("$DELTAT$", str(self.__args.dt))
@@ -321,14 +321,14 @@ if not os.path.isdir('/Applications/Stellarium.app/Contents/Resources/'.format(P
 # if not os.path.isdir("{0}/.stellarium/scripts".format(Path.home())):
 #     os.mkdir("{0}/.stellarium/scripts".format(Path.home()));
 
-args_dict = dict(frame_folder = 'some_dir', \
-    lat = 20.3, \
-    long = 19.7, \
-    title = 'my_screenshot', \
+args_dict = dict(frame_folder = frame_folder, \
+    lat = lat, \
+    long = long, \
+    title = title, \
     date = datetime(year, month, day),  \
-    fov = 14, \
-    az = 45, \
-    alt = 84)
+    fov = fov, \
+    az = az, \
+    alt = alt)
 
 sa = StellariumToPng(args_dict)
 sa.create_script();
