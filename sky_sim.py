@@ -196,11 +196,15 @@ class StellariumToPng:
 
         core.wait(0.5);
         
-        LabelMgr.setLabelText(labelTime, core.getDate(""));
-        core.wait(0.1);
-        core.screenshot(file_prefix);
-
+        //LabelMgr.setLabelText(labelTime, core.getDate(""));
+        core.wait(0.5);
+        
         LabelMgr.deleteAllLabels();
+        
+        core.wait(0.5);
+        
+        core.screenshot(file_prefix);
+        
     }
 
     core.setTimeRate(0); 
@@ -208,33 +212,35 @@ class StellariumToPng:
     //core.setMilkyWayVisible(true);
     //core.setMilkyWayIntensity(4);
 
-    SolarSystem.setFlagPlanets(true);
+    SolarSystem.setFlagPlanets(false);
     SolarSystem.setMoonScale(6);
     SolarSystem.setFlagMoonScale(true);
     SolarSystem.setFontSize(25);
     
-    StelSkyDrawer.setAbsoluteStarScale(1.5);
-    StelSkyDrawer.setRelativeStarScale(1.65);
+    StelSkyDrawer.setFlagStarMagnitudeLimit(true);
+    StelSkyDrawer.setCustomStarMagnitudeLimit(4);
+    StelSkyDrawer.setAbsoluteStarScale(1);
+    StelSkyDrawer.setRelativeStarScale(1);
 
     StarMgr.setFontSize(20);
-    StarMgr.setLabelsAmount(3);
+    StarMgr.setLabelsAmount(0);
 
-    ConstellationMgr.setFlagLines(true);
-    ConstellationMgr.setFlagLabels(true);
-    ConstellationMgr.setArtIntensity(0.1);
-    ConstellationMgr.setFlagArt(true);
+    ConstellationMgr.setFlagLines(false);
+    ConstellationMgr.setFlagLabels(false);
+    ConstellationMgr.setArtIntensity(0.0);
+    ConstellationMgr.setFlagArt(false);
     ConstellationMgr.setFlagBoundaries(false);
-    ConstellationMgr.setConstellationLineThickness(3);
+    ConstellationMgr.setConstellationLineThickness(0);
     ConstellationMgr.setFontSize(18);
 
     //LandscapeMgr.setCurrentLandscapeName("Hurricane Ridge");
-    LandscapeMgr.setFlagAtmosphere(true);
+    LandscapeMgr.setFlagAtmosphere(false);
 
     StelMovementMgr.zoomTo(param_fov, 0);
     core.wait(0.5);
 
     get_frame(param_date, "frame_", param_title, param_long, param_lat, param_alt, param_az)
-    core.screenshot("final", invert=false, dir=param_frame_folder, overwrite=true);
+    // core.screenshot("final", invert=false, dir=param_frame_folder, overwrite=true);
     core.setGuiVisible(true);
     core.quitStellarium();"""
 
